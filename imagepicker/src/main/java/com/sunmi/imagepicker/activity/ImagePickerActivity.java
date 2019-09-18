@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
@@ -24,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sunmi.commmonlib.router.ImagePickerApi;
 import com.sunmi.commmonlib.router.ModuleConfig;
 import com.sunmi.imagepicker.ImagePicker;
 import com.sunmi.imagepicker.R;
@@ -47,7 +49,11 @@ import com.sunmi.imagepicker.utils.PermissionUtil;
 import com.sunmi.imagepicker.utils.Utils;
 import com.sunmi.imagepicker.view.ImageFolderPopupWindow;
 import com.xiaojinzi.component.anno.RouterAnno;
+import com.xiaojinzi.component.impl.BiCallback;
+import com.xiaojinzi.component.impl.Router;
+import com.xiaojinzi.component.impl.RouterErrorResult;
 import com.xiaojinzi.component.impl.RouterRequest;
+import com.xiaojinzi.component.impl.RouterResult;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -198,20 +204,6 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
         mMediaFileList = new ArrayList<>();
         mImagePickerAdapter = new ImagePickerAdapter(this, mMediaFileList);
         mImagePickerAdapter.setOnItemClickListener(this);
-        RecyItemTouchHelperCallback itemTouchHelperCallback = new RecyItemTouchHelperCallback(mImagePickerAdapter, false, true);
-        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(mRecyclerView);
-        mRecyclerView.addOnItemTouchListener(new OnRecyclerItemClickListener(mRecyclerView) {
-            @Override
-            public void onItemClick(RecyclerView.ViewHolder viewHolder) {
-
-            }
-
-            @Override
-            public void onLongClick(RecyclerView.ViewHolder viewHolder) {
-                itemTouchHelper.startDrag(viewHolder);
-            }
-        });
         mRecyclerView.setAdapter(mImagePickerAdapter);
 
     }
@@ -448,13 +440,49 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
 
         if (mMediaFileList != null) {
             DataUtil.getInstance().setMediaData(mMediaFileList);
-            Intent intent = new Intent(this, ImagePreActivity.class);
+            //Intent intent = new Intent(this, ImagePreActivity.class);
             if (isShowCamera) {
-                intent.putExtra(ImagePreActivity.IMAGE_POSITION, position - 1);
+               // intent.putExtra(ImagePreActivity.IMAGE_POSITION, position - 1);
+                Router
+                        .withApi(ImagePickerApi.class)
+                        .goToImagePre(this, position - 1, new BiCallback<Integer>() {
+                            @Override
+                            public void onSuccess(@NonNull RouterResult result, @NonNull Integer integer) {
+
+                            }
+
+                            @Override
+                            public void onCancel(@Nullable RouterRequest originalRequest) {
+
+                            }
+
+                            @Override
+                            public void onError(@NonNull RouterErrorResult errorResult) {
+
+                            }
+                        });
             } else {
-                intent.putExtra(ImagePreActivity.IMAGE_POSITION, position);
+                //intent.putExtra(ImagePreActivity.IMAGE_POSITION, position);
+                Router
+                        .withApi(ImagePickerApi.class)
+                        .goToImagePre(this, position, new BiCallback<Integer>() {
+                            @Override
+                            public void onSuccess(@NonNull RouterResult result, @NonNull Integer integer) {
+
+                            }
+
+                            @Override
+                            public void onCancel(@Nullable RouterRequest originalRequest) {
+
+                            }
+
+                            @Override
+                            public void onError(@NonNull RouterErrorResult errorResult) {
+
+                            }
+                        });
             }
-            startActivityForResult(intent, REQUEST_SELECT_IMAGES_CODE);
+           // startActivityForResult(intent, REQUEST_SELECT_IMAGES_CODE);
         }
     }
 

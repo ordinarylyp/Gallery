@@ -2,6 +2,7 @@ package com.sunmi.commmonlib.router;
 
 import android.content.Context;
 
+import com.xiaojinzi.component.anno.ParameterAnno;
 import com.xiaojinzi.component.anno.router.HostAnno;
 import com.xiaojinzi.component.anno.router.NavigateAnno;
 import com.xiaojinzi.component.anno.router.PathAnno;
@@ -22,4 +23,9 @@ public interface ImagePickerApi {
     @NavigateAnno(forResultCode = true)
     @RequestCodeAnno()
     void goToImagePicker(Context context, BiCallback<Integer> callback);
+
+    @PathAnno(ModuleConfig.ImagePicker.IMAGEPRE)
+    @NavigateAnno(forResultCode = true)
+    @RequestCodeAnno(0x01)
+    void goToImagePre(Context context,@ParameterAnno("imagePosition") int position,BiCallback<Integer> callback);
 }

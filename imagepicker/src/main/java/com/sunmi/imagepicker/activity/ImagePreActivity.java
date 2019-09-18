@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sunmi.commmonlib.router.ModuleConfig;
 import com.sunmi.imagepicker.R;
 import com.sunmi.imagepicker.adapter.ImagePreViewAdapter;
 import com.sunmi.imagepicker.data.MediaFile;
@@ -20,6 +21,8 @@ import com.sunmi.imagepicker.manager.SelectionManager;
 import com.sunmi.imagepicker.provider.ImagePickerProvider;
 import com.sunmi.imagepicker.utils.DataUtil;
 import com.sunmi.imagepicker.view.HackyViewPager;
+import com.xiaojinzi.component.anno.RouterAnno;
+import com.xiaojinzi.component.impl.RouterRequest;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +48,15 @@ public class ImagePreActivity extends BaseActivity {
     private LinearLayout mLlPreSelect;
     private ImageView mIvPreCheck;
     private ImagePreViewAdapter mImagePreViewAdapter;
+
+
+    @RouterAnno(
+            path = ModuleConfig.ImagePicker.IMAGEPRE
+    )
+    public static Intent start(RouterRequest request) {
+        Intent intent = new Intent(request.getRawContext(), ImagePickerActivity.class);
+        return intent;
+    }
 
 
     @Override

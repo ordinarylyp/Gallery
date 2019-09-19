@@ -54,7 +54,7 @@ public class ImagePreActivity extends BaseActivity {
             path = ModuleConfig.ImagePicker.IMAGEPRE
     )
     public static Intent start(RouterRequest request) {
-        Intent intent = new Intent(request.getRawContext(), ImagePickerActivity.class);
+        Intent intent = new Intent(request.getRawContext(), ImagePreActivity.class);
         return intent;
     }
 

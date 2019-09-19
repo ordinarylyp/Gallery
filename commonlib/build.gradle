@@ -41,7 +41,7 @@ dependencies {
     api "org.androidannotations:androidannotations-api:${AAVersion}"
     annotationProcessor "org.androidannotations:androidannotations:${AAVersion}"
 
-    api 'com.github.xiaojinzi123.Component:component-impl:1.7.4'
-    annotationProcessor "com.github.xiaojinzi123.Component:component-compiler:1.7.4"
+    api 'com.github.xiaojinzi123.Component:component-impl:1.7.5'
+    annotationProcessor "com.github.xiaojinzi123.Component:component-compiler:1.7.5"
 
 }

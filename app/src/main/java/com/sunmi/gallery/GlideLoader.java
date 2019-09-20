@@ -22,6 +22,7 @@ public class GlideLoader implements ImageLoader {
             .error(R.mipmap.icon_image_error);
 
     private RequestOptions mPreOptions = new RequestOptions()
+            .format(DecodeFormat.PREFER_RGB_565)
             .skipMemoryCache(true)
             .error(R.mipmap.icon_image_error);
 

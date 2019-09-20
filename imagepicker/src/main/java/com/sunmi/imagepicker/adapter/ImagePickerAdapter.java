@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,16 @@ import android.widget.TextView;
 import com.sunmi.imagepicker.R;
 import com.sunmi.imagepicker.data.ItemType;
 import com.sunmi.imagepicker.data.MediaFile;
+import com.sunmi.imagepicker.listener.ItemTouchHelperAdapter;
+import com.sunmi.imagepicker.listener.ItemTouchHelperViewHolder;
+import com.sunmi.imagepicker.listener.OnStartDragListener;
 import com.sunmi.imagepicker.manager.ConfigManager;
 import com.sunmi.imagepicker.manager.SelectionManager;
 import com.sunmi.imagepicker.utils.Utils;
 import com.sunmi.imagepicker.view.SquareImageView;
 import com.sunmi.imagepicker.view.SquareRelativeLayout;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,17 +33,21 @@ import java.util.List;
  * Time: 上午1:18
  * Email: lichenwei.me@foxmail.com
  */
-public class ImagePickerAdapter extends RecyclerView.Adapter<ImagePickerAdapter.BaseHolder> {
+public class ImagePickerAdapter extends RecyclerView.Adapter<ImagePickerAdapter.BaseHolder>
+        implements ItemTouchHelperAdapter {
 
     private Context mContext;
     private List<MediaFile> mMediaFileList;
     private boolean isShowCamera;
+    private final OnStartDragListener mDragStartListener;
+    private String TAG = "ImagePickerAdapter";
 
 
-    public ImagePickerAdapter(Context context, List<MediaFile> mediaFiles) {
+    public ImagePickerAdapter(Context context, List<MediaFile> mediaFiles, OnStartDragListener listener) {
         this.mContext = context;
         this.mMediaFileList = mediaFiles;
         this.isShowCamera = ConfigManager.getInstance().isShowCamera();
+        this.mDragStartListener = listener;
     }
 
 
@@ -163,8 +172,28 @@ public class ImagePickerAdapter extends RecyclerView.Adapter<ImagePickerAdapter.
 
     }
 
-    public List<MediaFile> getDataList() {
-        return mMediaFileList;
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        Log.e(TAG, "fromPosition = " + fromPosition + " ,toPosition = " + toPosition);
+        int start = fromPosition - 1;
+        int end = toPosition - 1;
+        if (start < end) {
+            for (int i = start; i < end; i++) {
+                Collections.swap(mMediaFileList, i, i + 1);
+            }
+        } else {
+            for (int i = start; i > end; i--) {
+                Collections.swap(mMediaFileList, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+        return true;
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        mMediaFileList.remove(position);
+        notifyItemRemoved(position);
     }
 
     /**
@@ -220,7 +249,8 @@ public class ImagePickerAdapter extends RecyclerView.Adapter<ImagePickerAdapter.
     /**
      * 基础Item
      */
-    public class BaseHolder extends RecyclerView.ViewHolder {
+    public class BaseHolder extends RecyclerView.ViewHolder
+            implements ItemTouchHelperViewHolder, View.OnLongClickListener {
 
         public SquareRelativeLayout mSquareRelativeLayout;
 
@@ -235,6 +265,29 @@ public class ImagePickerAdapter extends RecyclerView.Adapter<ImagePickerAdapter.
                         mOnItemClickListener.onMediaClick(view, getAdapterPosition());
                     }
                 });
+            }
+            if (getAdapterPosition() != 0) {
+                itemView.setOnLongClickListener(this);
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            mDragStartListener.onStartDrag(this);
+            return false;
+        }
+
+        @Override
+        public void onItemSelected() {
+            if (getAdapterPosition() != 0) {
+                itemView.setBackgroundColor(Color.LTGRAY);
+            }
+        }
+
+        @Override
+        public void onItemClear() {
+            if (getAdapterPosition() != 0) {
+                itemView.setBackgroundColor(Color.WHITE);
             }
         }
     }

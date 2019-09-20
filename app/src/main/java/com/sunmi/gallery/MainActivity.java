@@ -19,7 +19,7 @@ public class MainActivity extends BaseActivity {
     @ViewById(R.id.tv_select_images)
     TextView tvSelectImg;
 
-    private ArrayList<String> imagePaths;
+    private ArrayList<String> imagePaths = new ArrayList<>();
 
     @AfterViews
     void init() {
@@ -44,12 +44,15 @@ public class MainActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             imagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
-            StringBuilder stringBuider = new StringBuilder();
-            stringBuider.append("当前选中图片路径：\n\n");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("当前选中图片路径：\n\n");
             for (int i = 0; i < imagePaths.size(); i++) {
-                stringBuider.append(imagePaths.get(i) + "\n\n");
+                stringBuilder.append(imagePaths.get(i) + "\n\n");
             }
-            tvSelectImg.setText(stringBuider.toString());
+            tvSelectImg.setText(stringBuilder.toString());
+        } else {
+            imagePaths.clear();
+            tvSelectImg.setText("");
         }
     }
 

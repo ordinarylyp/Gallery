@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="1dp">
 
-    <com.lcw.sunmi.imagepicker.view.SquareImageView
+    <com.sunmi.imagepicker.view.SquareImageView
         android:id="@+id/iv_item_image"
         android:layout_width="match_parent"
         android:layout_height="90dp"

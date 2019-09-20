@@ -35,8 +35,8 @@ import com.sunmi.imagepicker.data.MediaFile;
 import com.sunmi.imagepicker.data.MediaFolder;
 import com.sunmi.imagepicker.executors.CommonExecutor;
 import com.sunmi.imagepicker.listener.MediaLoadCallback;
-import com.sunmi.imagepicker.listener.OnRecyclerItemClickListener;
-import com.sunmi.imagepicker.listener.RecyItemTouchHelperCallback;
+import com.sunmi.imagepicker.listener.OnStartDragListener;
+import com.sunmi.imagepicker.listener.SimpleItemTouchHelperCallback;
 import com.sunmi.imagepicker.manager.ConfigManager;
 import com.sunmi.imagepicker.manager.SelectionManager;
 import com.sunmi.imagepicker.provider.ImagePickerProvider;
@@ -66,7 +66,8 @@ import java.util.List;
  * Time: 上午1:10
  * Email: lichenwei.me@foxmail.com
  */
-public class ImagePickerActivity extends BaseActivity implements ImagePickerAdapter.OnItemClickListener, ImageFoldersAdapter.OnImageFolderChangeListener {
+public class ImagePickerActivity extends BaseActivity implements ImagePickerAdapter.OnItemClickListener,
+        ImageFoldersAdapter.OnImageFolderChangeListener, OnStartDragListener {
 
     /**
      * 启动参数
@@ -131,6 +132,8 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
      * 权限相关
      */
     private static final int REQUEST_PERMISSION_CAMERA_CODE = 0x03;
+
+    private ItemTouchHelper mItemTouchHelper; //
 
 
     @RouterAnno(
@@ -202,10 +205,12 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
         mRecyclerView.setItemViewCacheSize(60);
 
         mMediaFileList = new ArrayList<>();
-        mImagePickerAdapter = new ImagePickerAdapter(this, mMediaFileList);
+        mImagePickerAdapter = new ImagePickerAdapter(this, mMediaFileList, this);
         mImagePickerAdapter.setOnItemClickListener(this);
         mRecyclerView.setAdapter(mImagePickerAdapter);
-
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mImagePickerAdapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
     /**
@@ -442,7 +447,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
             DataUtil.getInstance().setMediaData(mMediaFileList);
             //Intent intent = new Intent(this, ImagePreActivity.class);
             if (isShowCamera) {
-               // intent.putExtra(ImagePreActivity.IMAGE_POSITION, position - 1);
+                // intent.putExtra(ImagePreActivity.IMAGE_POSITION, position - 1);
                 Router
                         .withApi(ImagePickerApi.class)
                         .goToImagePre(this, position - 1, new BiCallback<Integer>() {
@@ -482,7 +487,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
                             }
                         });
             }
-           // startActivityForResult(intent, REQUEST_SELECT_IMAGES_CODE);
+            // startActivityForResult(intent, REQUEST_SELECT_IMAGES_CODE);
         }
     }
 
@@ -529,6 +534,11 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
             }
         }
         updateCommitButton();
+    }
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.sunmi.commmonlib;
+package com.sunmi.commmonlib.view;
 
 /**
  * Description:

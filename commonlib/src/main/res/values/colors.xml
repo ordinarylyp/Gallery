@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="transparent">#00000000</color>
+    <color name="c_white">#ffffff</color>
+    <color name="colorLoadingStart">#FF5A00</color>
+    <color name="colorLoadingCenter">#FD935F</color>
+    <color name="colorLoadingEnd">#FFFBF8</color>
+</resources>

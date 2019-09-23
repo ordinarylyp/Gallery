@@ -3,7 +3,7 @@ package com.sunmi.gallery;
 import android.content.Intent;
 import android.widget.TextView;
 
-import com.sunmi.commmonlib.BaseActivity;
+import com.sunmi.commmonlib.view.BaseActivity;
 import com.sunmi.imagepicker.ImagePicker;
 
 import org.androidannotations.annotations.AfterViews;

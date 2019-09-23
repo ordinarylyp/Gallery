@@ -420,6 +420,8 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
             case LIGHT_ON:
                 layoutParams.alpha = 1.0f;
                 break;
+            default:
+                break;
         }
         getWindow().setAttributes(layoutParams);
     }
@@ -445,9 +447,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
 
         if (mMediaFileList != null) {
             DataUtil.getInstance().setMediaData(mMediaFileList);
-            //Intent intent = new Intent(this, ImagePreActivity.class);
             if (isShowCamera) {
-                // intent.putExtra(ImagePreActivity.IMAGE_POSITION, position - 1);
                 Router
                         .withApi(ImagePickerApi.class)
                         .goToImagePre(this, position - 1, new BiCallback<Integer>() {
@@ -467,7 +467,6 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
                             }
                         });
             } else {
-                //intent.putExtra(ImagePreActivity.IMAGE_POSITION, position);
                 Router
                         .withApi(ImagePickerApi.class)
                         .goToImagePre(this, position, new BiCallback<Integer>() {
@@ -487,7 +486,6 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
                             }
                         });
             }
-            // startActivityForResult(intent, REQUEST_SELECT_IMAGES_CODE);
         }
     }
 

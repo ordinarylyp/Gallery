@@ -27,10 +27,12 @@ import android.widget.Toast;
 
 import com.sunmi.commmonlib.router.ImagePickerApi;
 import com.sunmi.commmonlib.router.ModuleConfig;
+import com.sunmi.commmonlib.view.BaseMvpActivity;
 import com.sunmi.imagepicker.ImagePicker;
 import com.sunmi.imagepicker.R;
 import com.sunmi.imagepicker.adapter.ImageFoldersAdapter;
 import com.sunmi.imagepicker.adapter.ImagePickerAdapter;
+import com.sunmi.imagepicker.contract.ImagePickerContract;
 import com.sunmi.imagepicker.data.MediaFile;
 import com.sunmi.imagepicker.data.MediaFolder;
 import com.sunmi.imagepicker.executors.CommonExecutor;
@@ -39,6 +41,7 @@ import com.sunmi.imagepicker.listener.OnStartDragListener;
 import com.sunmi.imagepicker.listener.SimpleItemTouchHelperCallback;
 import com.sunmi.imagepicker.manager.ConfigManager;
 import com.sunmi.imagepicker.manager.SelectionManager;
+import com.sunmi.imagepicker.presenter.ImagePickerPresenter;
 import com.sunmi.imagepicker.provider.ImagePickerProvider;
 import com.sunmi.imagepicker.task.ImageLoadTask;
 import com.sunmi.imagepicker.task.MediaLoadTask;
@@ -55,6 +58,9 @@ import com.xiaojinzi.component.impl.RouterErrorResult;
 import com.xiaojinzi.component.impl.RouterRequest;
 import com.xiaojinzi.component.impl.RouterResult;
 
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +72,21 @@ import java.util.List;
  * Time: 上午1:10
  * Email: lichenwei.me@foxmail.com
  */
-public class ImagePickerActivity extends BaseActivity implements ImagePickerAdapter.OnItemClickListener,
-        ImageFoldersAdapter.OnImageFolderChangeListener, OnStartDragListener {
+@EActivity(resName = "activity_imagepicker")
+public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> implements ImagePickerAdapter.OnItemClickListener,
+        ImageFoldersAdapter.OnImageFolderChangeListener, OnStartDragListener, ImagePickerContract.View {
+
+    @ViewById(resName = "tv_actionBar_title")
+    TextView mTvTitle;
+    @ViewById(resName = "tv_actionBar_commit")
+    TextView mTvCommit;
+    
+    TextView mTvImageTime;
+    RecyclerView mRecyclerView;
+    TextView mTvImageFolders;
+    ImageFolderPopupWindow mImageFolderPopupWindow;
+
+    private RelativeLayout mRlBottom;
 
     /**
      * 启动参数
@@ -83,14 +102,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
     /**
      * 界面UI
      */
-    private TextView mTvTitle;
-    private TextView mTvCommit;
-    private TextView mTvImageTime;
-    private RecyclerView mRecyclerView;
-    private TextView mTvImageFolders;
-    private ImageFolderPopupWindow mImageFolderPopupWindow;
     private ProgressDialog mProgressDialog;
-    private RelativeLayout mRlBottom;
 
     private GridLayoutManager mGridLayoutManager;
     private ImagePickerAdapter mImagePickerAdapter;
@@ -272,6 +284,12 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
         } else {
             startScannerTask();
         }
+    }
+
+
+    @Override
+    public void loadMediaSuccess(List<MediaFolder> mediaFolderList) {
+
     }
 
     /**

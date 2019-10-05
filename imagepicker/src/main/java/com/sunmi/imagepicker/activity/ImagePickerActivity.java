@@ -1,8 +1,6 @@
 package com.sunmi.imagepicker.activity;
 
-import android.Manifest;
 import android.animation.ObjectAnimator;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,7 +10,6 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,10 +20,10 @@ import android.view.WindowManager;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sunmi.commmonlib.router.ImagePickerApi;
 import com.sunmi.commmonlib.router.ModuleConfig;
+import com.sunmi.commmonlib.utils.PermissionUtils;
 import com.sunmi.commmonlib.view.BaseMvpActivity;
 import com.sunmi.imagepicker.ImagePicker;
 import com.sunmi.imagepicker.R;
@@ -35,20 +32,14 @@ import com.sunmi.imagepicker.adapter.ImagePickerAdapter;
 import com.sunmi.imagepicker.contract.ImagePickerContract;
 import com.sunmi.imagepicker.data.MediaFile;
 import com.sunmi.imagepicker.data.MediaFolder;
-import com.sunmi.imagepicker.executors.CommonExecutor;
-import com.sunmi.imagepicker.listener.MediaLoadCallback;
 import com.sunmi.imagepicker.listener.OnStartDragListener;
 import com.sunmi.imagepicker.listener.SimpleItemTouchHelperCallback;
 import com.sunmi.imagepicker.manager.ConfigManager;
 import com.sunmi.imagepicker.manager.SelectionManager;
 import com.sunmi.imagepicker.presenter.ImagePickerPresenter;
 import com.sunmi.imagepicker.provider.ImagePickerProvider;
-import com.sunmi.imagepicker.task.ImageLoadTask;
-import com.sunmi.imagepicker.task.MediaLoadTask;
-import com.sunmi.imagepicker.task.VideoLoadTask;
 import com.sunmi.imagepicker.utils.DataUtil;
 import com.sunmi.imagepicker.utils.MediaFileUtil;
-import com.sunmi.imagepicker.utils.PermissionUtil;
 import com.sunmi.imagepicker.utils.Utils;
 import com.sunmi.imagepicker.view.ImageFolderPopupWindow;
 import com.xiaojinzi.component.anno.RouterAnno;
@@ -58,7 +49,10 @@ import com.xiaojinzi.component.impl.RouterErrorResult;
 import com.xiaojinzi.component.impl.RouterRequest;
 import com.xiaojinzi.component.impl.RouterResult;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
@@ -67,10 +61,6 @@ import java.util.List;
 
 /**
  * 多图选择器主页面
- * Create by: chenWei.li
- * Date: 2018/8/23
- * Time: 上午1:10
- * Email: lichenwei.me@foxmail.com
  */
 @EActivity(resName = "activity_imagepicker")
 public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> implements ImagePickerAdapter.OnItemClickListener,
@@ -80,13 +70,17 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
     TextView mTvTitle;
     @ViewById(resName = "tv_actionBar_commit")
     TextView mTvCommit;
-    
-    TextView mTvImageTime;
+    @ViewById(resName = "tv_image_time")
+    TextView mTvImageTime;             //滑动悬浮标题相关
+    @ViewById(resName = "rv_main_images")
     RecyclerView mRecyclerView;
+    @ViewById(resName = "tv_main_imageFolders")
     TextView mTvImageFolders;
-    ImageFolderPopupWindow mImageFolderPopupWindow;
+    @ViewById(resName = "rl_main_bottom")
+    RelativeLayout mRlBottom;
 
-    private RelativeLayout mRlBottom;
+    private ImageFolderPopupWindow mImageFolderPopupWindow;
+
 
     /**
      * 启动参数
@@ -102,8 +96,6 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
     /**
      * 界面UI
      */
-    private ProgressDialog mProgressDialog;
-
     private GridLayoutManager mGridLayoutManager;
     private ImagePickerAdapter mImagePickerAdapter;
 
@@ -141,32 +133,28 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
     private static final int REQUEST_CODE_CAPTURE = 0x02;//点击拍照标识
 
     /**
-     * 权限相关
+     * RecyclerView拖拽移动相关
      */
-    private static final int REQUEST_PERMISSION_CAMERA_CODE = 0x03;
-
-    private ItemTouchHelper mItemTouchHelper; //
+    private ItemTouchHelper mItemTouchHelper;
 
 
+    /**
+     * 路由启动Activity
+     *
+     * @param request
+     * @return
+     */
     @RouterAnno(
             path = ModuleConfig.ImagePicker.IMAGEOICKER
     )
     public static Intent start(RouterRequest request) {
-        Intent intent = new Intent(request.getRawContext(), ImagePickerActivity.class);
+        Intent intent = new Intent(request.getRawContext(), ImagePickerActivity_.class);
         return intent;
     }
-
-
-    @Override
-    protected int bindLayout() {
-        return R.layout.activity_imagepicker;
-    }
-
 
     /**
      * 初始化配置
      */
-    @Override
     protected void initConfig() {
         mTitle = ConfigManager.getInstance().getTitle();
         isShowCamera = ConfigManager.getInstance().isShowCamera();
@@ -183,33 +171,20 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
         }
     }
 
-
     /**
      * 初始化布局控件
      */
-    @Override
-    protected void initView() {
-
-        mProgressDialog = ProgressDialog.show(this, null, getString(R.string.scanner_image));
-
-        //顶部栏相关
-        mTvTitle = findViewById(R.id.tv_actionBar_title);
+    @AfterViews
+    void init() {
+        initConfig();
         if (TextUtils.isEmpty(mTitle)) {
             mTvTitle.setText(getString(R.string.image_picker));
         } else {
             mTvTitle.setText(mTitle);
         }
-        mTvCommit = findViewById(R.id.tv_actionBar_commit);
-
-        //滑动悬浮标题相关
-        mTvImageTime = findViewById(R.id.tv_image_time);
-
-        //底部栏相关
-        mRlBottom = findViewById(R.id.rl_main_bottom);
-        mTvImageFolders = findViewById(R.id.tv_main_imageFolders);
-
-        //列表相关
-        mRecyclerView = findViewById(R.id.rv_main_images);
+        mPresenter = new ImagePickerPresenter();
+        mPresenter.attachView(this);
+        showLoadingDialog(getString(R.string.scanner_image));
         mGridLayoutManager = new GridLayoutManager(this, 4);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         //注释说当知道Adapter内Item的改变不会影响RecyclerView宽高的时候，可以设置为true让RecyclerView避免重新计算大小。
@@ -223,38 +198,14 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mImagePickerAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        initListener();
+        getData();
     }
 
     /**
      * 初始化控件监听事件
      */
-    @Override
     protected void initListener() {
-
-        findViewById(R.id.iv_actionBar_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_CANCELED);
-                finish();
-            }
-        });
-
-        mTvCommit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                commitSelection();
-            }
-        });
-
-        mTvImageFolders.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mImageFolderPopupWindow != null) {
-                    setLightMode(LIGHT_OFF);
-                    mImageFolderPopupWindow.showAsDropDown(mRlBottom, 0, 0);
-                }
-            }
-        });
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -272,24 +223,58 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
 
     }
 
-    /**
-     * 获取数据源
-     */
-    @Override
-    protected void getData() {
-        //进行权限的判断
-        boolean hasPermission = PermissionUtil.checkPermission(this);
-        if (!hasPermission) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_CAMERA_CODE);
-        } else {
-            startScannerTask();
+    @Click(resName = "iv_actionBar_back")
+    protected void backClick() {
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
+    @Click(resName = "tv_actionBar_commit")
+    protected void commitClick() {
+        commitSelection();
+    }
+
+    @Click(resName = "tv_main_imageFolders")
+    protected void imageFoldersClick() {
+        if (mImageFolderPopupWindow != null) {
+            setLightMode(LIGHT_OFF);
+            mImageFolderPopupWindow.showAsDropDown(mRlBottom, 0, 0);
         }
     }
 
 
+    /**
+     * 获取数据源
+     */
+    private void getData() {
+        //进行权限的判断
+        if (PermissionUtils.checkSDCardCameraPermission(this)) {
+            mPresenter.loadMedia(context, isShowImage, isShowVideo);
+        }
+    }
+
+    @UiThread
     @Override
     public void loadMediaSuccess(List<MediaFolder> mediaFolderList) {
+        if (!mediaFolderList.isEmpty()) {
+            //默认加载全部照片
+            mMediaFileList.addAll(mediaFolderList.get(0).getMediaFileList());
+            mImagePickerAdapter.notifyDataSetChanged();
 
+            //图片文件夹数据
+            mMediaFolderList = new ArrayList<>(mediaFolderList);
+            mImageFolderPopupWindow = new ImageFolderPopupWindow(ImagePickerActivity.this, mMediaFolderList);
+            mImageFolderPopupWindow.setAnimationStyle(R.style.imageFolderAnimator);
+            mImageFolderPopupWindow.getAdapter().setOnImageFolderChangeListener(ImagePickerActivity.this);
+            mImageFolderPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    setLightMode(LIGHT_ON);
+                }
+            });
+            updateCommitButton();
+        }
+        hideLoadingDialog();
     }
 
     /**
@@ -302,86 +287,13 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSION_CAMERA_CODE) {
-            if (grantResults.length >= 1) {
-                int cameraResult = grantResults[0];//相机权限
-                int sdResult = grantResults[1];//sd卡权限
-                boolean cameraGranted = cameraResult == PackageManager.PERMISSION_GRANTED;//拍照权限
-                boolean sdGranted = sdResult == PackageManager.PERMISSION_GRANTED;//拍照权限
-                if (cameraGranted && sdGranted) {
-                    //具有拍照权限，sd卡权限，开始扫描任务
-                    startScannerTask();
-                } else {
-                    //没有权限
-                    Toast.makeText(this, getString(R.string.permission_tip), Toast.LENGTH_SHORT).show();
-                    finish();
-                }
+        if (requestCode == PermissionUtils.REQ_PERMISSIONS_CAMERA_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mPresenter.loadMedia(context, isShowImage, isShowVideo);
+            } else {
+                shortTip(R.string.permission_tip);
+                finish();
             }
-        }
-    }
-
-
-    /**
-     * 开启扫描任务
-     */
-    private void startScannerTask() {
-        Runnable mediaLoadTask = null;
-
-        //照片、视频全部加载
-        if (isShowImage && isShowVideo) {
-            mediaLoadTask = new MediaLoadTask(this, new MediaLoader());
-        }
-
-        //只加载视频
-        if (!isShowImage && isShowVideo) {
-            mediaLoadTask = new VideoLoadTask(this, new MediaLoader());
-        }
-
-        //只加载图片
-        if (isShowImage && !isShowVideo) {
-            mediaLoadTask = new ImageLoadTask(this, new MediaLoader());
-        }
-
-        //不符合以上场景，采用照片、视频全部加载
-        if (mediaLoadTask == null) {
-            mediaLoadTask = new MediaLoadTask(this, new MediaLoader());
-        }
-
-        CommonExecutor.getInstance().execute(mediaLoadTask);
-    }
-
-
-    /**
-     * 处理媒体数据加载成功后的UI渲染
-     */
-    class MediaLoader implements MediaLoadCallback {
-
-        @Override
-        public void loadMediaSuccess(final List<MediaFolder> mediaFolderList) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (!mediaFolderList.isEmpty()) {
-                        //默认加载全部照片
-                        mMediaFileList.addAll(mediaFolderList.get(0).getMediaFileList());
-                        mImagePickerAdapter.notifyDataSetChanged();
-
-                        //图片文件夹数据
-                        mMediaFolderList = new ArrayList<>(mediaFolderList);
-                        mImageFolderPopupWindow = new ImageFolderPopupWindow(ImagePickerActivity.this, mMediaFolderList);
-                        mImageFolderPopupWindow.setAnimationStyle(R.style.imageFolderAnimator);
-                        mImageFolderPopupWindow.getAdapter().setOnImageFolderChangeListener(ImagePickerActivity.this);
-                        mImageFolderPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                            @Override
-                            public void onDismiss() {
-                                setLightMode(LIGHT_ON);
-                            }
-                        });
-                        updateCommitButton();
-                    }
-                    mProgressDialog.cancel();
-                }
-            });
         }
     }
 
@@ -455,7 +367,7 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
         if (isShowCamera) {
             if (position == 0) {
                 if (!SelectionManager.getInstance().isCanChoose()) {
-                    Toast.makeText(this, String.format(getString(R.string.select_image_max), mMaxCount), Toast.LENGTH_SHORT).show();
+                    shortTip(getString(R.string.select_image_max, mMaxCount));
                     return;
                 }
                 showCamera();
@@ -518,14 +430,13 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
         if (isShowCamera) {
             if (position == 0) {
                 if (!SelectionManager.getInstance().isCanChoose()) {
-                    Toast.makeText(this, String.format(getString(R.string.select_image_max), mMaxCount), Toast.LENGTH_SHORT).show();
+                    shortTip(R.string.select_image_max);
                     return;
                 }
                 showCamera();
                 return;
             }
         }
-
         //执行选中/取消操作
         MediaFile mediaFile = mImagePickerAdapter.getMediaFile(position);
         if (mediaFile != null) {
@@ -537,7 +448,7 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
                     //判断选中集合中第一项是否为视频
                     if (!SelectionManager.isCanAddSelectionPaths(imagePath, selectPathList.get(0))) {
                         //类型不同
-                        Toast.makeText(this, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
+                        shortTip(R.string.single_type_choose);
                         return;
                     }
                 }
@@ -546,7 +457,7 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
             if (addSuccess) {
                 mImagePickerAdapter.notifyItemChanged(position);
             } else {
-                Toast.makeText(this, String.format(getString(R.string.select_image_max), mMaxCount), Toast.LENGTH_SHORT).show();
+                shortTip(R.string.select_image_max);
             }
         }
         updateCommitButton();
@@ -568,14 +479,9 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
             mTvCommit.setText(getString(R.string.confirm));
             return;
         }
-        if (selectCount < mMaxCount) {
+        if (selectCount <= mMaxCount) {
             mTvCommit.setEnabled(true);
-            mTvCommit.setText(String.format(getString(R.string.confirm_msg), selectCount, mMaxCount));
-            return;
-        }
-        if (selectCount == mMaxCount) {
-            mTvCommit.setEnabled(true);
-            mTvCommit.setText(String.format(getString(R.string.confirm_msg), selectCount, mMaxCount));
+            mTvCommit.setText(getString(R.string.confirm_msg, selectCount, mMaxCount));
             return;
         }
     }
@@ -591,7 +497,7 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
             if (!selectPathList.isEmpty()) {
                 if (MediaFileUtil.isVideoFileType(selectPathList.get(0))) {
                     //如果存在视频，就不能拍照了
-                    Toast.makeText(this, getString(R.string.single_type_choose), Toast.LENGTH_SHORT).show();
+                    shortTip(R.string.single_type_choose);
                     return;
                 }
             }

@@ -15,7 +15,11 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 // 配置业务模块的模块名称
-                arguments = ["HOST": "image"]
+                arguments = [
+                        'resourcePackageName': "com.sunmi.imagepicker",
+                        "androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString(),
+                        "HOST"               : "image"
+                ]
             }
         }
 

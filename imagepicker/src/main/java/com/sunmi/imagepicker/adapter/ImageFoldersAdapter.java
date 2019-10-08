@@ -18,10 +18,6 @@ import java.util.List;
 
 /**
  * 图片文件夹列表适配器
- * Create by: chenWei.li
- * Date: 2018/8/25
- * Time: 上午1:36
- * Email: lichenwei.me@foxmail.com
  */
 public class ImageFoldersAdapter extends RecyclerView.Adapter<ImageFoldersAdapter.ViewHolder> {
 

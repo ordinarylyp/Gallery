@@ -7,10 +7,6 @@ import android.widget.RelativeLayout;
 
 /**
  * 正方形RelativeLayout
- * Create by: chenWei.li
- * Date: 2018/9/1
- * Time: 下午10:12
- * Email: lichenwei.me@foxmail.com
  */
 public class SquareRelativeLayout extends RelativeLayout {
 

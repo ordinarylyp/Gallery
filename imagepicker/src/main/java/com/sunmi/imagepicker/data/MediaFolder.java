@@ -4,10 +4,6 @@ import java.util.ArrayList;
 
 /**
  * 图片文件夹实体类
- * Create by: chenWei.li
- * Date: 2018/8/23
- * Time: 上午12:56
- * Email: lichenwei.me@foxmail.com
  */
 public class MediaFolder {
 

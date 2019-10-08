@@ -9,10 +9,6 @@ import com.sunmi.imagepicker.data.MediaFile;
 
 /**
  * 媒体库扫描类(图片)
- * Create by: chenWei.li
- * Date: 2018/8/21
- * Time: 上午1:01
- * Email: lichenwei.me@foxmail.com
  */
 public class ImageScanner extends AbsMediaScanner<MediaFile> {
 
@@ -29,7 +25,7 @@ public class ImageScanner extends AbsMediaScanner<MediaFile> {
     @Override
     protected String[] getProjection() {
         return new String[]{
-                MediaStore.Images.Media.DATA,
+                MediaStore.Images.Media.DATA,            //路径
                 MediaStore.Images.Media.MIME_TYPE,
                 MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,

@@ -175,8 +175,12 @@ public class ImagePickerAdapter extends RecyclerView.Adapter<ImagePickerAdapter.
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
         Log.e(TAG, "fromPosition = " + fromPosition + " ,toPosition = " + toPosition);
-        int start = fromPosition - 1;
-        int end = toPosition - 1;
+        int start = fromPosition;
+        int end = toPosition;
+        if (isShowCamera) {
+            start--;
+            end--;
+        }
         if (start < end) {
             for (int i = start; i < end; i++) {
                 Collections.swap(mMediaFileList, i, i + 1);

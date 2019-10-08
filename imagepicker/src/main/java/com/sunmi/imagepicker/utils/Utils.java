@@ -7,6 +7,7 @@ import android.view.WindowManager;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * 屏幕相关工具类
@@ -49,7 +50,7 @@ public class Utils {
             return "本月";
         } else {
             Date date = new Date(timestamp);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM", Locale.getDefault());
             return sdf.format(date);
         }
     }

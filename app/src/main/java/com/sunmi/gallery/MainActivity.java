@@ -30,7 +30,7 @@ public class MainActivity extends BaseActivity {
     void selectImgClick() {
         ImagePicker.getInstance()
                 .setTitle("标题")//设置标题
-                .showCamera(true)//设置是否显示拍照按钮
+                .showCamera(false)//设置是否显示拍照按钮
                 .showImage(true)//设置是否展示图片
                 .showVideo(true)//设置是否展示视频
                 .setMaxCount(9)//设置最大选择图片数目(默认为1，单选)

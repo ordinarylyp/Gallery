@@ -9,10 +9,6 @@ import java.util.ArrayList;
 
 /**
  * 媒体库查询任务基类
- * Create by: chenWei.li
- * Date: 2019/1/21
- * Time: 8:35 PM
- * Email: lichenwei.me@foxmail.com
  */
 public abstract class AbsMediaScanner<T> {
 

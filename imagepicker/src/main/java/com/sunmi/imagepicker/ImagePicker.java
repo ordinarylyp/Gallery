@@ -17,10 +17,6 @@ import java.util.ArrayList;
 
 /**
  * 统一调用入口
- * Create by: chenWei.li
- * Date: 2018/8/26
- * Time: 下午6:31
- * Email: lichenwei.me@foxmail.com
  */
 public class ImagePicker {
 

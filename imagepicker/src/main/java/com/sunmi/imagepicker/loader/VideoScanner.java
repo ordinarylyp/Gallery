@@ -9,10 +9,6 @@ import com.sunmi.imagepicker.data.MediaFile;
 
 /**
  * 媒体库扫描类(视频)
- * Create by: chenWei.li
- * Date: 2018/8/21
- * Time: 上午1:01
- * Email: lichenwei.me@foxmail.com
  */
 public class VideoScanner extends AbsMediaScanner<MediaFile> {
 
@@ -26,7 +22,7 @@ public class VideoScanner extends AbsMediaScanner<MediaFile> {
     }
 
     @Override
-    protected Uri getScanUri() {
+    protected Uri   getScanUri() {
         return MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     }
 

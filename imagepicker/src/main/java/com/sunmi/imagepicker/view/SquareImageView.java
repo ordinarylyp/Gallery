@@ -6,10 +6,6 @@ import android.util.AttributeSet;
 
 /**
  * 正方形ImageView
- * Create by: chenWei.li
- * Date: 2018/9/1
- * Time: 下午10:12
- * Email: lichenwei.me@foxmail.com
  */
 public class SquareImageView extends android.support.v7.widget.AppCompatImageView {
 

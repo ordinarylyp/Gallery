@@ -12,10 +12,6 @@ import java.util.ArrayList;
 
 /**
  * 媒体库扫描任务（图片、视频）
- * Create by: chenWei.li
- * Date: 2018/8/25
- * Time: 下午12:31
- * Email: lichenwei.me@foxmail.com
  */
 public class MediaLoadTask implements Runnable {
 

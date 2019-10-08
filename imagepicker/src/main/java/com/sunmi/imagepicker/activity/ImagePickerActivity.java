@@ -195,7 +195,7 @@ public class ImagePickerActivity extends BaseMvpActivity<ImagePickerPresenter> i
         mImagePickerAdapter = new ImagePickerAdapter(this, mMediaFileList, this);
         mImagePickerAdapter.setOnItemClickListener(this);
         mRecyclerView.setAdapter(mImagePickerAdapter);
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mImagePickerAdapter);
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mImagePickerAdapter,isShowCamera);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
         initListener();

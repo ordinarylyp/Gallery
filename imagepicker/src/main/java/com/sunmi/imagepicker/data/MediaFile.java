@@ -9,11 +9,26 @@ package com.sunmi.imagepicker.data;
  */
 public class MediaFile {
 
+    /**
+     * 路径
+     */
     private String path;
     private String mime;
+    /**
+     * 文件夹Id
+     */
     private Integer folderId;
+    /**
+     * 文件夹名
+     */
     private String folderName;
+    /**
+     * 媒体类型
+     */
     private long duration;
+    /**
+     * 创建的时间
+     */
     private long dateToken;
 
     public String getPath() {

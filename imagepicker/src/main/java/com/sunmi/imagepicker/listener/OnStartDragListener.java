@@ -3,7 +3,7 @@ package com.sunmi.imagepicker.listener;
 import android.support.v7.widget.RecyclerView;
 
 /**
- * Description:
+ * Description: 监听RecyclerView Item的拖动
  *
  * @author linyuanpeng on 2019-09-20.
  */

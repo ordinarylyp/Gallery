@@ -15,10 +15,6 @@ import java.util.Map;
 
 /**
  * 媒体处理类（对扫描出来的图片、视频做对应聚类处理）
- * Create by: chenWei.li
- * Date: 2019/1/22
- * Time: 1:17 AM
- * Email: lichenwei.me@foxmail.com
  */
 public class MediaHandler {
 

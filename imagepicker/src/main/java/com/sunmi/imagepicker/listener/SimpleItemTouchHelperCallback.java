@@ -19,9 +19,11 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public static final float ALPHA_FULL = 1.0f;
 
     private final ItemTouchHelperAdapter mAdapter;
+    private final boolean isFirstUnable;
 
-    public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
+    public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter, boolean isFirstUnable) {
         mAdapter = adapter;
+        this.isFirstUnable = isFirstUnable;
     }
 
     @Override
@@ -37,19 +39,22 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         // Set movement flags based on the layout manager
-        if (viewHolder.getAdapterPosition() != 0) {
-            if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-                final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-                final int swipeFlags = ItemTouchHelper.START;
-                return makeMovementFlags(dragFlags, swipeFlags);
-            } else {
-                final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-                final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-                return makeMovementFlags(dragFlags, swipeFlags);
-            }
-        } else {
+//        if (viewHolder.getAdapterPosition() != 0) {
+        if (viewHolder.getAdapterPosition() == 0 && isFirstUnable) {
             return makeMovementFlags(0, 0);
         }
+        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+            final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+            final int swipeFlags = ItemTouchHelper.START;
+            return makeMovementFlags(dragFlags, swipeFlags);
+        } else {
+            final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+            final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            return makeMovementFlags(dragFlags, swipeFlags);
+        }
+//        } else {
+//            return makeMovementFlags(0, 0);
+//        }
     }
 
     @Override
@@ -58,10 +63,11 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
             return false;
         }
 
-        if (source.getAdapterPosition() == 0 || target.getAdapterPosition() == 0) {
-            return false;
+        if (isFirstUnable) {
+            if (source.getAdapterPosition() == 0 || target.getAdapterPosition() == 0) {
+                return false;
+            }
         }
-
         // Notify the adapter of the move
         mAdapter.onItemMove(source.getAdapterPosition(), target.getAdapterPosition());
         return true;

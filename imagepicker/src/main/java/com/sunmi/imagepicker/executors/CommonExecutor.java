@@ -8,10 +8,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * 公用线程池，执行一些耗时操作
- * Create by: chenWei.li
- * Date: 2018/8/24
- * Time: 下午7:53
- * Email: lichenwei.me@foxmail.com
+ * 采用缓存线程池
  */
 public class CommonExecutor {
 

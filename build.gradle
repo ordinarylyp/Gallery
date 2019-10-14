@@ -1,6 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    println "buildscript project name = "+project.name
     repositories {
         mavenCentral()
         google()
@@ -17,6 +18,7 @@ buildscript {
 }
 
 allprojects {
+    println "common config project name = "+project.name
     repositories {
         google()
         jcenter()
@@ -26,5 +28,6 @@ allprojects {
 }
 
 task clean(type: Delete) {
+    println "clean project name = "+project.name
     delete rootProject.buildDir
 }

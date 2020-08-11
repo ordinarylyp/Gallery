@@ -95,13 +95,16 @@ DiskCacheStrategy.AUTOMATIC：它会尝试对本地和远程图片使用最佳�
 
 2.图片长按移动和滑动删除：
 使用 ItemTouchHelper.Callback 这个RecyclerView开放出来的接口，对Item 的Drag事件和Swipe事件进行监听，在getMovementFlags 这个方法中进行操作行为的监听：
+```java
 final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
 final int swipeFlags = ItemTouchHelper.START;
 return makeMovementFlags(dragFlags, swipeFlags);
+```
 
 
 其中dragFlags代表长按移动的行为，swipeFlags代表滑动删除的行为。
 之后再重写下面两个方法对长按移动和滑动删除进行回调：
+```java
 @Override
 public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
     //长按移动的回调
@@ -122,8 +125,10 @@ public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
     // 滑动删除的回调
     mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
 }
+```
 
 为了有更好的页面展示效果，可以重写下面三个方法对背景和透明度进行更改
+```java
 @Override
 public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
     //在View绘制时执行的方法，可以改写透明度，写出图片渐渐消失的效果
@@ -162,7 +167,7 @@ public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHol
         itemViewHolder.onItemClear();
     }
 }
-
+```
 3.底部弹窗选择读取不同文件夹中的图片
 
 通过自定义的PopupWindow结合RecyclerView实现，并向外提供获取数据的接口。
